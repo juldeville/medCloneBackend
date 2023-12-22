@@ -14,16 +14,15 @@ router.get("/", function (req, res, next) {
 module.exports = router;
 
 router.post("/signUp", (req, res) => {
-  if (!checkBody(req.body, ["firstName", "lastName", "password", "email"])) {
+  if (!checkBody(req.body, ["username", "password", "email"])) {
     res.json({ result: false, error: "missing or empty fields" });
     return;
   }
-  User.findOne({ email: req.body.email }).then((data) => {
+  User.findOne({ username: req.body.username }).then((data) => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.password, 10);
       const newUser = new User({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
+        username: req.body.username,
         email: req.body.email,
         password: hash,
         token: uid2(32),
@@ -37,14 +36,13 @@ router.post("/signUp", (req, res) => {
 });
 
 router.post("/signIn", (req, res) => {
-  if (!checkBody(req.body, ["email", "password"])) {
+  if (!checkBody(req.body, ["username", "password"])) {
     res.json({ result: false, error: "missing or empty fields" });
     return;
   }
-  User.findOne({ email: req.body.email }).then((data) => {
-    console.log(data.password, req.body.password);
+  User.findOne({ username: req.body.username }).then((data) => {
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
       res.json({ result: true, token: data.token });
-    } else res.json({ result: false, error: "Invalide email or password" });
+    } else res.json({ result: false, error: "Invalide username or password" });
   });
 });
